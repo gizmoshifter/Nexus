@@ -6,30 +6,28 @@ NEXUS turns one goal into a coordinated workflow: plan the work, route tasks to 
 
 ## Principles
 
-- **Free-first, cloud-friendly:** start with provider free tiers and local development; clearly disclose quotas, rate limits, and any paid usage.
-- **Provider-agnostic:** use official APIs and supported OAuth/device authorization where available. Consumer chat subscriptions are not assumed to include API access.
-- **Human-controlled:** require approval before consequential external actions, repository writes, or spending.
-- **Secure by default:** keep credentials out of source control and logs; treat model output and retrieved content as untrusted.
-- **Lightweight and polished:** responsive, mobile-friendly UI with a restrained, Apple-inspired visual language.
+- **Hard free-only routing:** only explicitly free OpenRouter model IDs ending in `:free` are accepted by the server. No paid fallback or automatic upgrade.
+- **Provider-agnostic direction:** official APIs only. Consumer chat subscriptions are not assumed to include API access.
+- **Human-controlled:** no purchases, auto-recharge, or external side effects.
+- **Secure by default:** API credentials stay in server-side Cloudflare Pages secrets, never in browser code or Git.
+- **Lightweight and polished:** responsive, mobile-friendly UI.
 - **No ads or tracking.**
 
-## MVP
+## Current implementation
 
-1. Enter a goal and success criteria.
-2. Create a plan with task dependencies.
-3. Assign tasks to configured providers.
-4. Run independent tasks concurrently within quota and budget limits.
-5. Have reviewer agents critique work against the success criteria.
-6. Revise and synthesize a final result with an audit trail.
+- Responsive command-center interface.
+- Cloudflare Pages Functions endpoints for discovering explicitly zero-priced OpenRouter free models and calling one selected free model.
+- Server rejects model IDs that do not end in `:free`.
+- If a free model is rate-limited or unavailable, the request fails; it does not fall back to a paid model.
 
-## Development status
+## Deploy
 
-NEXUS is at the foundation stage. The first milestone is a secure, working orchestration shell with provider adapters and a transparent demo mode. Real provider connections will be added only through documented, supported authentication and API flows.
+See [the zero-cost policy and setup guide](docs/zero-cost-policy.md). The UI can be built with `npm run build`; live provider calls require deployment to Cloudflare Pages and an encrypted `OPENROUTER_API_KEY` secret.
+
+## Important
+
+Free access is quota-limited and can change. The app enforces free model selection, but account billing controls must also be configured at OpenRouter. Do not buy credits or enable auto-recharge. Do not reuse this key in other applications.
 
 ## Repository
 
-[ g izmoshifter/Nexus ](https://github.com/gizmoshifter/Nexus)
-
-## License
-
-License selection is pending. Do not assume this project is open-source licensed until a LICENSE file is added.
+https://github.com/gizmoshifter/Nexus
