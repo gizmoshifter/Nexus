@@ -1,3 +1,5 @@
+import { NEXUS_PERSONALITY } from "./personality";
+
 export type Provider = "openrouter" | "ollama";
 export type RoutingMode = "hybrid" | "cloud" | "local";
 export type ProviderModel = { id: string; name: string; provider: Provider };
@@ -60,12 +62,13 @@ export async function discoverModels(): Promise<{ models: ProviderModel[]; cloud
 }
 
 async function callModel(model: ProviderModel, system: string, prompt: string): Promise<string> {
+  const systemPrompt = `${NEXUS_PERSONALITY}\\n\\nROLE-SPECIFIC INSTRUCTIONS:\\n${system}`;
   if (model.provider === "openrouter") {
     if (!model.id.endsWith(":free")) throw new Error("Blocked by NEXUS: cloud model is not explicitly free.");
     const response = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: model.id, messages: [{ role: "system", content: system }, { role: "user", content: prompt }] })
+      body: JSON.stringify({ model: model.id, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: prompt }] })
     });
     const payload = await response.json() as { content?: string; error?: string };
     if (!response.ok) throw new Error(payload.error || "Free cloud model request failed. No paid fallback was attempted.");
