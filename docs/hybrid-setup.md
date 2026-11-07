@@ -27,7 +27,7 @@ Set the environment variable before launching Ollama, then restart Ollama. On Wi
 
 ## Cloud model connection
 
-Add `OPENROUTER_API_KEY` as an encrypted Cloudflare Pages secret. Create the key in an account with no purchased credits and auto-recharge disabled. NEXUS only requests models that the live OpenRouter catalog marks as zero-priced. If the provider changes pricing, the request is blocked.
+For local Wrangler development, create a root-level `.dev.vars` file containing `OPENROUTER_API_KEY=your_key_here`. This file is ignored by Git. For deployment, add `OPENROUTER_API_KEY` as an encrypted Cloudflare Pages secret. Create the key in an account with no purchased credits and auto-recharge disabled. NEXUS only requests models that the live OpenRouter catalog marks as zero-priced. If the provider changes pricing, the request is blocked.
 
 ## Routing modes
 
