@@ -7,12 +7,12 @@
 - [ ] Add contribution and license decisions.
 
 ## Milestone 1 — Visible end-to-end prototype
-- [ ] Responsive dashboard and task composer.
+- [x] Responsive dashboard and task composer.
 - [ ] Goal and success-criteria capture.
 - [ ] Plan preview and editable task graph.
-- [ ] Mock provider adapter.
-- [ ] Parallel task execution with live run-state updates.
-- [ ] Reviewer feedback and one bounded revision cycle.
+- [x] Live OpenRouter free-model and local Ollama adapters.
+- [x] Parallel task execution with live run-state updates.
+- [x] Independent critique and cross-model synthesis.
 - [ ] Final synthesis and run audit trail.
 
 ## Milestone 2 — Real provider connections
