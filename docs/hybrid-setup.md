@@ -20,7 +20,7 @@ A 7B quantized model is a reasonable starting point for many 24 GB GPUs, but per
 
 Ollama must allow requests from the origin hosting NEXUS. Configure `OLLAMA_ORIGINS` using the exact origin(s), not a wildcard:
 
-- Vite development: `http://localhost:5173`
+- Wrangler Pages development (`npm run dev:pages`): `http://localhost:8788`
 - Production: your exact deployed origin, for example `https://your-project.pages.dev`
 
 Set the environment variable before launching Ollama, then restart Ollama. On Windows, use Windows Environment Variables or PowerShell to set it for the Ollama process. Exact service restart steps depend on how Ollama was installed. Keep the Ollama server bound to localhost; do not expose port 11434 to the public internet.
