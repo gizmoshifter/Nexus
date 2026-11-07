@@ -22,3 +22,8 @@ Use a dedicated OpenRouter key/account with no purchased credits and no enabled 
 5. Redeploy after adding the secret.
 
 Local `npm run dev` serves the Vite UI only; the Pages Functions API is available when deployed to Cloudflare Pages or run locally with Wrangler Pages.
+
+
+## Local inference
+
+NEXUS can also send requests directly from the browser to Ollama at `http://localhost:11434`. Local inference does not incur a per-token API charge. Configure Ollama to allow only the exact NEXUS browser origin using `OLLAMA_ORIGINS`; keep the Ollama service bound to localhost and do not expose port 11434 publicly. See [the hybrid setup guide](hybrid-setup.md).
