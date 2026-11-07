@@ -19,8 +19,8 @@ NEXUS sends one goal to multiple independent models, runs their perspectives con
 
 1. Install Node.js 20+ and Ollama.
 2. Pull a local model, e.g. `ollama pull qwen2.5:7b`.
-3. Configure Ollama's `OLLAMA_ORIGINS` to allow the exact NEXUS origin (development: `http://localhost:5173`; production: your exact Pages origin). Do not use a wildcard or expose port 11434 publicly.
-4. Run `npm install` then `npm run dev`.
+3. Configure Ollama's `OLLAMA_ORIGINS` to allow the exact NEXUS origin (development: `http://localhost:8788`; production: your exact Pages origin). Do not use a wildcard or expose port 11434 publicly.
+4. Run `npm install` then `npm run dev:pages` for the full Cloudflare Pages Functions API locally.
 5. For cloud models, add `OPENROUTER_API_KEY` as an encrypted Cloudflare Pages secret. Use an account with no purchased credits and auto-recharge disabled.
 
 See [Hybrid cloud + local setup](docs/hybrid-setup.md) and [zero-cost policy](docs/zero-cost-policy.md).
