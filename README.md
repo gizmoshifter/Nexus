@@ -20,6 +20,10 @@ NEXUS turns one goal into a coordinated workflow: plan the work, route tasks to 
 - Server rejects model IDs that do not end in `:free`.
 - If a free model is rate-limited or unavailable, the request fails; it does not fall back to a paid model.
 
+## Hybrid setup
+
+See [the hybrid cloud + local setup guide](docs/hybrid-setup.md) for Ollama installation, exact-origin CORS configuration, and routing modes.
+
 ## Deploy
 
 See [the zero-cost policy and setup guide](docs/zero-cost-policy.md). The UI can be built with `npm run build`; live provider calls require deployment to Cloudflare Pages and an encrypted `OPENROUTER_API_KEY` secret.
