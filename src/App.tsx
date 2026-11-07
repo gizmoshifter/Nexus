@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Activity, ArrowUpRight, Check, ChevronDown, CircleHelp, Command, Cpu, GitBranch, Layers3, LockKeyhole, Play, Plus, Radio, ShieldCheck, Sparkles, Workflow, Zap } from "lucide-react";
-import { Agent, initialAgents, runDemo } from "./engine";
+import { Agent, initialAgents, runLive } from "./engine";
 
 const statusLabel = (status: Agent["status"]) => ({
   idle: "Standby", working: "Working", reviewing: "Reviewing", complete: "Complete"
@@ -9,7 +9,8 @@ const statusLabel = (status: Agent["status"]) => ({
 export default function App() {
   const [goal, setGoal] = useState("");
   const [agents, setAgents] = useState<Agent[]>(initialAgents);
-  const [phase, setPhase] = useState("Ready when you are");
+  const [phase, setPhase] = useState("Ready · zero-cost mode");
+  const [error, setError] = useState("");
   const [plan, setPlan] = useState<string[]>([]);
   const [synthesis, setSynthesis] = useState("");
   const [running, setRunning] = useState(false);
@@ -19,15 +20,20 @@ export default function App() {
     if (!goal.trim() || running) return;
     setRunning(true);
     setSynthesis("");
+    setError("");
     setHistory((items) => [`Run started · ${new Date().toLocaleTimeString()}`, ...items].slice(0, 5));
     try {
-      const result = await runDemo(goal.trim(), (nextAgents, nextPhase, nextPlan) => {
+      const result = await runLive(goal.trim(), (nextAgents, nextPhase, nextPlan) => {
         setAgents(nextAgents);
         setPhase(nextPhase);
         setPlan(nextPlan);
       });
       setSynthesis(result.synthesis);
       setHistory((items) => [`Run completed · ${new Date().toLocaleTimeString()}`, ...items].slice(0, 5));
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Workflow failed.");
+      setPhase("Stopped · no paid fallback");
+      setHistory((items) => [`Run stopped · ${new Date().toLocaleTimeString()}`, ...items].slice(0, 5));
     } finally {
       setRunning(false);
     }
@@ -53,7 +59,7 @@ export default function App() {
       </aside>
 
       <main className="main">
-        <header className="topbar"><div className="crumb">Workspace <span>/</span> <strong>Command center</strong></div><div className="top-actions"><span className="connection"><i /> Demo mode</span><button className="icon-button" aria-label="Help"><CircleHelp size={18} /></button></div></header>
+        <header className="topbar"><div className="crumb">Workspace <span>/</span> <strong>Command center</strong></div><div className="top-actions"><span className="connection"><i /> Free-only routing</span><button className="icon-button" aria-label="Help"><CircleHelp size={18} /></button></div></header>
         <div className="content">
           <section className="hero">
             <div className="eyebrow"><span className="eyebrow-line" /> MULTI-AGENT INTELLIGENCE</div>
@@ -63,8 +69,8 @@ export default function App() {
 
           <section className="composer panel">
             <div className="panel-head"><div><span className="section-kicker">NEW WORKFLOW</span><h2>What are we working on?</h2></div><span className="shortcut"><Command size={12} /> ENTER</span></div>
-            <textarea value={goal} onChange={(event) => setGoal(event.target.value)} placeholder="Describe your goal, problem, or idea. Be as ambitious as you like…" rows={3} />
-            <div className="composer-foot"><span><LockKeyhole size={13} /> Your prompt stays in this demo session</span><button className="run-button" onClick={startRun} disabled={!goal.trim() || running}>{running ? <><span className="spinner" /> Orchestrating</> : <><Play size={14} fill="currentColor" /> Run workflow</>}</button></div>
+            <textarea value={goal} onChange={(event) => setGoal(event.target.value)} placeholder="Describe your goal. NEXUS will run available free models in parallel…" rows={3} />
+            <div className="composer-foot"><span><LockKeyhole size={13} /> Only explicitly free models · no paid fallback</span><button className="run-button" onClick={startRun} disabled={!goal.trim() || running}>{running ? <><span className="spinner" /> Orchestrating</> : <><Play size={14} fill="currentColor" /> Run workflow</>}</button></div>
           </section>
 
           <div className="section-heading"><div><span className="section-kicker">LIVE ORCHESTRATION</span><h2>Agent team</h2></div><div className="run-progress"><span>{completed}/{agents.length} complete</span><div className="progress-track"><i style={{ width: `${completed / agents.length * 100}%` }} /></div></div></div>
@@ -87,9 +93,10 @@ export default function App() {
             </section>
           </div>
 
+          {error && <section className="panel synthesis"><div className="synthesis-heading"><div className="synthesis-icon"><ShieldCheck size={17} /></div><div><span className="section-kicker">ZERO-COST PROTECTION</span><h2>Run stopped safely</h2></div></div><p>{error}</p></section>}
           {synthesis && <section className="panel synthesis"><div className="synthesis-heading"><div className="synthesis-icon"><Sparkles size={17} /></div><div><span className="section-kicker">COLLECTIVE OUTPUT</span><h2>Final synthesis</h2></div><span className="complete-tag"><Check size={12} /> Run complete</span></div><p>{synthesis}</p></section>}
 
-          <footer><span>NEXUS <i>·</i> Built for better thinking, together.</span><span><LockKeyhole size={12} /> Demo mode · No external models connected <ArrowUpRight size={12} /></span></footer>
+          <footer><span>NEXUS <i>·</i> Built for better thinking, together.</span><span><LockKeyhole size={12} /> Free-only routing · paid models blocked <ArrowUpRight size={12} /></span></footer>
         </div>
       </main>
     </div>
