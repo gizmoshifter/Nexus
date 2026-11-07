@@ -62,7 +62,7 @@ export async function discoverModels(): Promise<{ models: ProviderModel[]; cloud
 }
 
 async function callModel(model: ProviderModel, system: string, prompt: string): Promise<string> {
-  const systemPrompt = `${NEXUS_PERSONALITY}\\n\\nROLE-SPECIFIC INSTRUCTIONS:\\n${system}`;
+  const systemPrompt = `${NEXUS_PERSONALITY}\n\nROLE-SPECIFIC INSTRUCTIONS:\n${system}`;
   if (model.provider === "openrouter") {
     if (!model.id.endsWith(":free")) throw new Error("Blocked by NEXUS: cloud model is not explicitly free.");
     const response = await fetch("/api/chat", {
