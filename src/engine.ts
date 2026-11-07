@@ -7,58 +7,59 @@ export type Agent = {
   status: "idle" | "working" | "reviewing" | "complete";
   output: string;
 };
-
-export type RunResult = {
-  plan: string[];
-  agents: Agent[];
-  synthesis: string;
-};
-
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
+export type RunResult = { plan: string[]; agents: Agent[]; synthesis: string };
+type FreeModel = { id: string; name: string };
+const plan = [
+  "Break the goal into clear workstreams",
+  "Run independent free models in parallel",
+  "Compare outputs and identify disagreements",
+  "Synthesize a practical result"
+];
 export const initialAgents: Agent[] = [
   { id: "planner", name: "Atlas", role: "Planner", model: "NEXUS orchestration", accent: "violet", status: "idle", output: "" },
-  { id: "research", name: "Scout", role: "Researcher", model: "Demo provider", accent: "blue", status: "idle", output: "" },
-  { id: "builder", name: "Forge", role: "Builder", model: "Demo provider", accent: "cyan", status: "idle", output: "" },
-  { id: "reviewer", name: "Sage", role: "Reviewer", model: "Independent review", accent: "amber", status: "idle", output: "" }
+  { id: "research", name: "Scout", role: "Researcher", model: "OpenRouter free model", accent: "blue", status: "idle", output: "" },
+  { id: "builder", name: "Forge", role: "Solution designer", model: "OpenRouter free model", accent: "cyan", status: "idle", output: "" },
+  { id: "reviewer", name: "Sage", role: "Independent critic", model: "OpenRouter free model", accent: "amber", status: "idle", output: "" }
 ];
-
-export async function runDemo(
-  goal: string,
-  update: (agents: Agent[], phase: string, plan: string[]) => void
-): Promise<RunResult> {
-  const plan = [
-    "Clarify the goal and define a measurable outcome",
-    "Explore approaches and identify constraints",
-    "Develop a proposed solution",
-    "Review the solution against the goal",
-    "Synthesize the strongest result"
-  ];
-  let agents = initialAgents.map((agent) => ({ ...agent }));
-  const set = (id: string, patch: Partial<Agent>) => {
-    agents = agents.map((agent) => agent.id === id ? { ...agent, ...patch } : agent);
-    update(agents, "Agents collaborating", plan);
+async function callFreeModel(model: string, system: string, goal: string): Promise<string> {
+  if (!model.endsWith(":free")) throw new Error("Blocked: NEXUS only permits explicitly free model IDs.");
+  const response = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model, messages: [{ role: "system", content: system }, { role: "user", content: goal }] })
+  });
+  const payload = await response.json() as { content?: string; error?: string };
+  if (!response.ok) throw new Error(payload.error || "Free model request failed. No paid fallback was attempted.");
+  return payload.content || "The model returned an empty response.";
+}
+export async function runLive(goal: string, update: (agents: Agent[], phase: string, plan: string[]) => void): Promise<RunResult> {
+  let agents = initialAgents.map(a => ({ ...a }));
+  const set = (id: string, patch: Partial<Agent>, phase = "Free models collaborating") => {
+    agents = agents.map(a => a.id === id ? { ...a, ...patch } : a);
+    update(agents, phase, plan);
   };
-
-  set("planner", { status: "working", output: "Breaking the goal into a sequence of verifiable tasks." });
-  update(agents, "Planning workflow", plan);
-  await wait(850);
-  set("planner", { status: "complete", output: "Five-step plan created. Research and solution design can proceed in parallel." });
-
-  set("research", { status: "working", output: "Mapping the problem, constraints, and useful approaches." });
-  set("builder", { status: "working", output: "Developing a first-pass solution from the goal and plan." });
-  await wait(1500);
-  set("research", { status: "complete", output: `Research pass complete for: “${goal}”. Key considerations and viable approaches have been identified.` });
-  set("builder", { status: "complete", output: "A first-pass solution is ready for independent review. Assumptions are called out for verification." });
-
-  set("reviewer", { status: "reviewing", output: "Checking completeness, clarity, feasibility, and unsupported assumptions." });
-  update(agents, "Independent review", plan);
-  await wait(1200);
-  set("reviewer", { status: "complete", output: "Review complete: strengthen measurable success criteria, make assumptions explicit, and keep the next action testable." });
-
+  set("planner", { status: "complete", output: "Created four stages. Independent perspectives will run concurrently." }, "Planning workflow");
+  set("research", { status: "working", output: "Researching options and constraints…" });
+  set("builder", { status: "working", output: "Designing a practical solution…" });
+  set("reviewer", { status: "working", output: "Independently challenging assumptions…" });
+  const catalogResponse = await fetch("/api/models");
+  const catalog = await catalogResponse.json() as { models?: FreeModel[]; error?: string };
+  if (!catalogResponse.ok || !catalog.models?.length) throw new Error(catalog.error || "No explicitly free OpenRouter models are currently available.");
+  const models = catalog.models;
+  const chosen = [models[0], models[1] ?? models[0], models[2] ?? models[0]];
+  agents = agents.map((a, i) => i > 0 ? { ...a, model: chosen[i - 1].name } : a);
+  update(agents, "Running free models in parallel", plan);
+  const tasks = [
+    callFreeModel(chosen[0].id, "You are Scout, a careful research analyst. Identify key facts to verify, options, constraints, and uncertainties. Do not invent sources.", goal),
+    callFreeModel(chosen[1].id, "You are Forge, a practical solution designer. Propose a concrete, prioritized solution with implementation details.", goal),
+    callFreeModel(chosen[2].id, "You are Sage, an independent critic. Find risks, missing assumptions, failure modes, and improvements.", goal)
+  ];
+  const [research, solution, critique] = await Promise.all(tasks);
+  set("research", { status: "complete", output: research });
+  set("builder", { status: "complete", output: solution });
+  set("reviewer", { status: "complete", output: critique }, "Synthesis complete");
   return {
-    plan,
-    agents,
-    synthesis: `A coordinated first pass for “${goal}” is complete. The planner decomposed the request, research and solution design ran in parallel, and an independent reviewer checked the result. This is a demonstration run: no external AI provider was called and no claims have been independently verified. Connect supported provider APIs to enable live model execution.`
+    plan, agents,
+    synthesis: `FREE-ONLY MODEL COLLABORATION\n\nResearch ( ${chosen[0].name} )\n${research}\n\nProposed solution ( ${chosen[1].name} )\n${solution}\n\nIndependent critique ( ${chosen[2].name} )\n${critique}\n\nCost protection: each request used a model ID ending in :free. No paid fallback was attempted. Free quotas and availability are controlled by the provider; if a free model fails, NEXUS stops rather than paying.`
   };
 }
