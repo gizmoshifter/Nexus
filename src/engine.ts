@@ -107,7 +107,20 @@ export async function runLive(
   const discovered = await discoverModels();
   const cloud = discovered.models.filter(model => model.provider === "openrouter");
   const local = discovered.models.filter(model => model.provider === "ollama");
-  const pool = mode === "cloud" ? cloud : mode === "local" ? local : [...cloud.slice(0, 2), ...local.slice(0, 2), ...cloud.slice(2)];
+  // Hybrid mode deliberately samples both providers when both are available.
+  // Keep cloud-only and local-only strict: the synthesizer must use the same route.
+  const pool = mode === "cloud"
+    ? cloud
+    : mode === "local"
+      ? local
+      : [
+          ...cloud.slice(0, 1),
+          ...local.slice(0, 1),
+          ...cloud.slice(1, 2),
+          ...local.slice(1, 2),
+          ...cloud.slice(2),
+          ...local.slice(2)
+        ];
   if (!pool.length) {
     const detail = mode === "local" ? discovered.localError : mode === "cloud" ? discovered.cloudError : [discovered.cloudError, discovered.localError].filter(Boolean).join(" ");
     throw new Error(detail || "No eligible models found. Connect a free cloud provider or start local Ollama.");
@@ -135,7 +148,11 @@ export async function runLive(
   set("builder", { status: "complete", output: solution });
   set("reviewer", { status: "reviewing", output: critique }, "Cross-model review and synthesis");
 
-  const synthesizer = local[0] ?? cloud[0] ?? chosen[0];
+  const synthesizer = mode === "local"
+    ? local[0] ?? chosen[0]
+    : mode === "cloud"
+      ? cloud[0] ?? chosen[0]
+      : local[0] ?? cloud[0] ?? chosen[0];
   const synthesis = await callModel(
     synthesizer,
     "You are the NEXUS synthesis editor. Combine multiple independent model outputs into one accurate, useful answer. Resolve disagreements explicitly, retain uncertainty, remove repetition, and prioritize actionable recommendations. Do not invent citations or claim actions were performed.",
