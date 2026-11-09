@@ -3,42 +3,38 @@
 ## Milestone 0 — Foundation
 - [x] Establish repository and product principles.
 - [x] Document architecture, security, and milestones.
-- [ ] Add application scaffold and continuous integration.
-- [ ] Add contribution and license decisions.
+- [x] Application scaffold and continuous integration.
 
-## Milestone 1 — Visible end-to-end prototype
-- [ ] Responsive dashboard and task composer.
-- [ ] Goal and success-criteria capture.
-- [ ] Plan preview and editable task graph.
-- [ ] Mock provider adapter.
-- [ ] Parallel task execution with live run-state updates.
-- [ ] Reviewer feedback and one bounded revision cycle.
-- [ ] Final synthesis and run audit trail.
+## Milestone 1 — Hybrid multi-model prototype
+- [x] Responsive dashboard and task composer.
+- [x] Live discovery of explicitly zero-priced OpenRouter models.
+- [x] Direct local Ollama model discovery.
+- [x] Hybrid, cloud-only, and local-only routing modes.
+- [x] Parallel research, solution, and independent critique agents.
+- [x] Cross-model synthesis.
 
-## Milestone 2 — Real provider connections
-- [ ] Provider settings and connection status.
-- [ ] Official API/OAuth/device authorization flows.
-- [ ] Per-provider model/capability registry.
-- [ ] Rate-limit, quota, timeout, and error handling.
-- [ ] User-configurable spend and concurrency limits.
+## Milestone 2 — Provider and workflow reliability
+- [ ] Provider-neutral adapter contract and provider health telemetry.
+- [ ] Bounded retries for transient failures without changing cost class.
+- [ ] Cancellation and per-agent timeout controls.
+- [ ] Run persistence and exportable audit records.
+- [ ] Settings page for local endpoint and provider diagnostics.
 
-## Milestone 3 — Reliability and safety
-- [ ] Durable run persistence and resumability.
-- [ ] Prompt-injection and untrusted-content defenses.
-- [ ] Secret redaction and secure secret storage.
-- [ ] Approval gates for external side effects.
+## Milestone 3 — More free cloud providers
+- [ ] Add official provider APIs only when a free-only account boundary can be verified or user-configured without a billing path.
+- [ ] Add per-provider model allowlists and explicit cost ceilings.
+- [ ] Add model capability metadata and user-selectable agent assignments.
+- [ ] Never use consumer subscription credentials, scraping, account rotation, or quota evasion.
+
+## Milestone 4 — Polish and portability
+- [ ] Streaming output and responsive agent details.
+- [ ] Accessible workflow templates.
 - [ ] Automated unit, integration, and end-to-end tests.
-
-## Milestone 4 — Collaboration and portability
-- [ ] Pluggable agent roles and workflow templates.
-- [ ] Exportable run reports.
-- [ ] Optional repository integrations with explicit permissions.
-- [ ] Cross-device polish and accessibility.
-- [ ] Deployment guide for free/low-cost hosting options.
+- [ ] Keep deployments optional and preserve local-only mode.
 
 ## Release principles
-
 - No ads, sponsored placements, or tracking.
-- Never promise unlimited free inference; show provider quotas and limitations honestly.
+- Hard $0.00 application spending ceiling.
+- Never promise unlimited free inference.
 - Never bypass provider rate limits or account restrictions.
-- Keep the core usable in demo mode without API keys.
+- Fail closed whenever cloud pricing cannot be verified as zero.
