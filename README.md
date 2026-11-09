@@ -9,10 +9,11 @@ NEXUS sends one goal to multiple independent models, runs their perspectives con
 - **Hybrid inference:** verified-free OpenRouter cloud models plus local Ollama models running on your computer.
 - **Parallel collaboration:** research, solution design, and independent critique run as separate model calls.
 - **Cross-model synthesis:** a final model combines the outputs and retains unresolved uncertainty.
-- **Hard zero-cost cloud routing:** the server accepts only OpenRouter model IDs ending in `:free` and verifies prompt and completion prices are both zero before every request.
-- **No paid fallback:** rate limits, provider failures, unknown pricing, and exhausted free quotas stop visibly. NEXUS never upgrades, buys credits, or rotates accounts to evade limits.
+- **Free-only by default:** the server accepts only OpenRouter model IDs ending in `:free` and verifies prompt and completion prices are both zero before every request.
+- **Optional bring-your-own-key mode:** users can connect an OpenRouter key, choose a paid model, and set a $0–$5 per-workflow budget. It stays at $0 until explicitly changed. The app estimates spend before a run and reads reported usage afterward; set an OpenRouter key limit for the account-level ceiling.
+- **No automatic paid fallback:** rate limits, provider failures, and exhausted free quotas stop visibly. NEXUS never upgrades a free request, buys credits, enables auto-recharge, or rotates accounts to evade limits.
 - **Local inference:** Ollama requests go directly from the browser to `http://localhost:11434`; no local model API key or cloud inference charge is required.
-- **Privacy-first:** OpenRouter credentials remain in Cloudflare Pages encrypted secrets. Local inference stays on your machine.
+- **Privacy-first:** the default free-mode credential stays in Cloudflare Pages encrypted secrets. An optional BYOK key is held in tab memory and sent directly from the browser to OpenRouter; it is not stored by NEXUS. Local inference stays on your machine.
 - **No ads or tracking.**
 
 ## Quick start
@@ -32,15 +33,17 @@ See [Hybrid cloud + local setup](docs/hybrid-setup.md) and [zero-cost policy](do
 - Add `OPENROUTER_API_KEY` as an encrypted Pages secret.
 - The local Ollama connection is optional; Cloud only mode works without it.
 
-## Zero-cost limits
+## Spend controls
 
-NEXUS enforces a $0.00 application-level cloud model selection policy for OpenRouter: it checks live catalog pricing on every request and fails closed if pricing is missing or nonzero. It cannot guarantee provider uptime or unlimited free quotas. Keep provider billing and auto-recharge disabled. Local inference may use electricity and hardware resources, but has no per-token API fee.
+At the default $0 budget, NEXUS uses only server-verified zero-priced cloud models and local Ollama. Optional BYOK mode checks a conservative per-workflow cost estimate and stops before further paid calls when reported usage reaches the selected limit. Model tokenization and provider billing can differ from estimates, so use OpenRouter's own key spending limit as the account-level ceiling. Local inference may use electricity and hardware resources, but has no per-token API fee.
 
 ## Architecture
 
 - `functions/api/models.ts`: live zero-priced OpenRouter model discovery.
 - `functions/api/chat.ts`: server-side OpenRouter adapter with per-request live price verification.
+- `src/openrouter.ts`: optional BYOK key check and paid-model catalog, called directly from the browser.
 - `src/engine.ts`: provider discovery, parallel agents, and cross-model synthesis.
 - `src/App.tsx`: responsive command center, connection status, and routing modes.
 
 Repository: https://github.com/gizmoshifter/Nexus
+
